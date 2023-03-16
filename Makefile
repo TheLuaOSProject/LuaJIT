@@ -51,8 +51,9 @@
 
 LUA 		:= luajit
 
-ALL_LIB 	:= $(wildcard src/lib_*.c)
+ALL_LIB 	:= src/lib_base.c src/lib_math.c src/lib_bit.c src/lib_string.c src/lib_table.c src/lib_io.c src/lib_os.c src/lib_package.c src/lib_debug.c src/lib_jit.c src/lib_ffi.c src/lib_buffer.c
 ALL_LJ		:= $(wildcard src/lj_*.c)
+BUILD_LIB   := src/lib_aux.c src/lib_base.c src/lib_bit.c src/lib_buffer.c src/lib_debug.c src/lib_math.c src/lib_string.c src/lib_table.c
 
 HOST_CC 	:= clang
 HOST_CFLAGS := -DLUAJIT_TARGET=LUAJIT_ARCH_X64 -DLUAJIT_OS=LUAJIT_OS_OTHER -DLUAJIT_DISABLE_JIT -DLUAJIT_DISABLE_FFI -DLUAJIT_NO_UNWIND -Isrc/ -DTARGET_OS_IPHONE=0
@@ -60,7 +61,7 @@ HOST_CFLAGS := -DLUAJIT_TARGET=LUAJIT_ARCH_X64 -DLUAJIT_OS=LUAJIT_OS_OTHER -DLUA
 CC 			:= clang
 CFLAGS 		:= 	-target x86_64-elf\
 				-nostdinc\
-				-std=gnu2x\
+				-std=gnu17\
 				-Wno-duplicate-decl-specifier -Wno-unused-command-line-argument -Wno-unknown-attributes \
 				-I../../inc -I../../inc/lj-libc -Isrc \
 				-DLUAJIT_DISABLE_FFI -DLUAJIT_USE_SYSMALLOC -DLUAJIT_TARGET=LUAJIT_ARCH_X64 -DLUAJIT_OS=LUAJIT_OS_OTHER -DLUAJIT_DISABLE_JIT -DLUAJIT_DISABLE_FFI -DLUAJIT_NO_UNWIND -DTARGET_OS_IPHONE=0 -DLUAJIT_SECURITY_PRNG=0\
@@ -94,7 +95,7 @@ src/lj_ffdef.h: buildvm.exe
 src/lj_libdef.h: buildvm.exe
 	./$< -m libdef -o $@ $(ALL_LIB)
 
-src/lj_recdef.h: buildvm
+src/lj_recdef.h: buildvm.exe
 	./$< -m recdef -o $@ $(ALL_LIB)
 
 src/jit/vmdef.lua: buildvm.exe
@@ -103,10 +104,10 @@ src/jit/vmdef.lua: buildvm.exe
 src/lj_folddef.h: buildvm.exe src/lj_opt_fold.c
 	./$< -m folddef -o $@ $<
 
-src/lj_vm.o: src/lj_vm.s
+src/lj_vm.o: src/lj_vm.s src/lj_bcdef.h src/lj_ffdef.h src/lj_libdef.h src/lj_recdef.h src/jit/vmdef.lua src/lj_folddef.h
 	$(CC) -c $(CFLAGS) -o $@ $<
 
-libluajit_luck.o: src/lj_vm.o $(ALL_LJ:.c=.o) $(ALL_LIB:.c=.o)
+libluajit_luck.o: src/lj_vm.o $(ALL_LJ:.c=.o) $(BUILD_LIB:.c=.o)
 	ld.lld -r -o $@ $^
 
 %.o: %.c
