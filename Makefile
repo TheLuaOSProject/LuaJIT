@@ -1,170 +1,105 @@
-##############################################################################
-# LuaJIT top level Makefile for installation. Requires GNU Make.
+# Copyright (C) 2023 Amrit Bhogal
 #
-# Please read doc/install.html before changing any variables!
+# This file is part of LuaJIT.
 #
-# Suitable for POSIX platforms (Linux, *BSD, OSX etc.).
-# Note: src/Makefile has many more configurable options.
+# LuaJIT is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
 #
-# ##### This Makefile is NOT useful for Windows! #####
-# For MSVC, please follow the instructions given in src/msvcbuild.bat.
-# For MinGW and Cygwin, cd to src and run make with the Makefile there.
+# LuaJIT is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 #
-# Copyright (C) 2005-2022 Mike Pall. See Copyright Notice in luajit.h
-##############################################################################
+# You should have received a copy of the GNU General Public License
+# along with LuaJIT.  If not, see <http://www.gnu.org/licenses/>.
 
-MAJVER=  2
-MINVER=  1
-RELVER=  0
-PREREL=  -beta3
-VERSION= $(MAJVER).$(MINVER).$(RELVER)$(PREREL)
-ABIVER=  5.1
+# old shell script
+# set -ex
 
-##############################################################################
-#
-# Change the installation path as needed. This automatically adjusts
-# the paths in src/luaconf.h, too. Note: PREFIX must be an absolute path!
-#
-export PREFIX= /usr/local
-export MULTILIB= lib
-##############################################################################
+# cd extern/luajit/src
 
-DPREFIX= $(DESTDIR)$(PREFIX)
-INSTALL_BIN=   $(DPREFIX)/bin
-INSTALL_LIB=   $(DPREFIX)/$(MULTILIB)
-INSTALL_SHARE= $(DPREFIX)/share
-INSTALL_DEFINC= $(DPREFIX)/include/luajit-$(MAJVER).$(MINVER)
-INSTALL_INC=   $(INSTALL_DEFINC)
+# DASM=../dynasn/dynasm.lua
+# ALL_LIB="lib_base.c lib_math.c lib_bit.c lib_string.c lib_table.c lib_io.c lib_os.c lib_package.c lib_debug.c lib_jit.c lib_ffi.c lib_buffer.c"
 
-INSTALL_LJLIBD= $(INSTALL_SHARE)/luajit-$(VERSION)
-INSTALL_JITLIB= $(INSTALL_LJLIBD)/jit
-INSTALL_LMODD= $(INSTALL_SHARE)/lua
-INSTALL_LMOD= $(INSTALL_LMODD)/$(ABIVER)
-INSTALL_CMODD= $(INSTALL_LIB)/lua
-INSTALL_CMOD= $(INSTALL_CMODD)/$(ABIVER)
-INSTALL_MAN= $(INSTALL_SHARE)/man/man1
-INSTALL_PKGCONFIG= $(INSTALL_LIB)/pkgconfig
+# gcc host/minilua.c -o minilua.exe -lm
 
-INSTALL_TNAME= luajit-$(VERSION)
-INSTALL_TSYMNAME= luajit
-INSTALL_ANAME= libluajit-$(ABIVER).a
-INSTALL_SOSHORT1= libluajit-$(ABIVER).so
-INSTALL_SOSHORT2= libluajit-$(ABIVER).so.$(MAJVER)
-INSTALL_SONAME= $(INSTALL_SOSHORT2).$(MINVER).$(RELVER)
-INSTALL_DYLIBSHORT1= libluajit-$(ABIVER).dylib
-INSTALL_DYLIBSHORT2= libluajit-$(ABIVER).$(MAJVER).dylib
-INSTALL_DYLIBNAME= libluajit-$(ABIVER).$(MAJVER).$(MINVER).$(RELVER).dylib
-INSTALL_PCNAME= luajit.pc
+# ./minilua.exe ../dynasm/dynasm.lua -LN -D P64 -D NO_UNWIND -o host/buildvm_arch.h vm_x64.dasc
 
-INSTALL_STATIC= $(INSTALL_LIB)/$(INSTALL_ANAME)
-INSTALL_DYN= $(INSTALL_LIB)/$(INSTALL_SONAME)
-INSTALL_SHORT1= $(INSTALL_LIB)/$(INSTALL_SOSHORT1)
-INSTALL_SHORT2= $(INSTALL_LIB)/$(INSTALL_SOSHORT2)
-INSTALL_T= $(INSTALL_BIN)/$(INSTALL_TNAME)
-INSTALL_TSYM= $(INSTALL_BIN)/$(INSTALL_TSYMNAME)
-INSTALL_PC= $(INSTALL_PKGCONFIG)/$(INSTALL_PCNAME)
+# gcc host/buildvm*.c -o buildvm.exe -DLUAJIT_TARGET=LUAJIT_ARCH_X64 -DLUAJIT_OS=LUAJIT_OS_OTHER -DLUAJIT_DISABLE_JIT -DLUAJIT_DISABLE_FFI -DLUAJIT_NO_UNWIND -I. -DTARGET_OS_IPHONE=0
 
-INSTALL_DIRS= $(INSTALL_BIN) $(INSTALL_LIB) $(INSTALL_INC) $(INSTALL_MAN) \
-  $(INSTALL_PKGCONFIG) $(INSTALL_JITLIB) $(INSTALL_LMOD) $(INSTALL_CMOD)
-UNINSTALL_DIRS= $(INSTALL_JITLIB) $(INSTALL_LJLIBD) $(INSTALL_INC) \
-  $(INSTALL_LMOD) $(INSTALL_LMODD) $(INSTALL_CMOD) $(INSTALL_CMODD)
+# ./buildvm.exe -m elfasm -o lj_vm.s
+# ./buildvm.exe -m bcdef -o lj_bcdef.h $ALL_LIB
+# ./buildvm.exe -m ffdef -o lj_ffdef.h $ALL_LIB
+# ./buildvm.exe -m libdef -o lj_libdef.h $ALL_LIB
+# ./buildvm.exe -m recdef -o lj_recdef.h $ALL_LIB
+# ./buildvm.exe -m vmdef -o jit/vmdef.lua $ALL_LIB
+# ./buildvm.exe -m folddef -o lj_folddef.h lj_opt_fold.c
 
-RM= rm -f
-MKDIR= mkdir -p
-RMDIR= rmdir 2>/dev/null
-SYMLINK= ln -sf
-INSTALL_X= install -m 0755
-INSTALL_F= install -m 0644
-UNINSTALL= $(RM)
-LDCONFIG= ldconfig -n 2>/dev/null
-SED_PC= sed -e "s|^prefix=.*|prefix=$(PREFIX)|" \
-            -e "s|^multilib=.*|multilib=$(MULTILIB)|"
-ifneq ($(INSTALL_DEFINC),$(INSTALL_INC))
-  SED_PC+= -e "s|^includedir=.*|includedir=$(INSTALL_INC)|"
-endif
+# LJCOMPILE="clang -target x86_64-elf -nostdinc -Wno-duplicate-decl-specifier -Wno-unused-command-line-argument -Wno-unknown-attributes -I../../../inc -I../../../inc/lj-libc -DLUAJIT_DISABLE_FFI -DLUAJIT_USE_SYSMALLOC -DLUAJIT_TARGET=LUAJIT_ARCH_X64 -DLUAJIT_OS=LUAJIT_OS_OTHER -DLUAJIT_DISABLE_JIT -DLUAJIT_DISABLE_FFI -DLUAJIT_NO_UNWIND -I. -DTARGET_OS_IPHONE=0 -DLUAJIT_SECURITY_PRNG=0 -g -mcmodel=kernel -fno-omit-frame-pointer"
 
-FILE_T= luajit
-FILE_A= libluajit.a
-FILE_SO= libluajit.so
-FILE_MAN= luajit.1
-FILE_PC= luajit.pc
-FILES_INC= lua.h lualib.h lauxlib.h luaconf.h lua.hpp luajit.h
-FILES_JITLIB= bc.lua bcsave.lua dump.lua p.lua v.lua zone.lua \
-	      dis_x86.lua dis_x64.lua dis_arm.lua dis_arm64.lua \
-	      dis_arm64be.lua dis_ppc.lua dis_mips.lua dis_mipsel.lua \
-	      dis_mips64.lua dis_mips64el.lua vmdef.lua
+# rm -f lj_*.o lib_*.o
 
-ifeq (,$(findstring Windows,$(OS)))
-  HOST_SYS:= $(shell uname -s)
-else
-  HOST_SYS= Windows
-endif
-TARGET_SYS?= $(HOST_SYS)
+# $LJCOMPILE -c -o lj_vm.o lj_vm.s
 
-ifeq (Darwin,$(TARGET_SYS))
-  INSTALL_SONAME= $(INSTALL_DYLIBNAME)
-  INSTALL_SOSHORT1= $(INSTALL_DYLIBSHORT1)
-  INSTALL_SOSHORT2= $(INSTALL_DYLIBSHORT2)
-  LDCONFIG= :
-endif
+# for f in lj_*.c lib_aux.c lib_base.c lib_bit.c lib_buffer.c lib_debug.c lib_math.c lib_string.c lib_table.c; do
+#     $LJCOMPILE -c $f
+# done
 
-##############################################################################
+# ld.lld -r -o libluajit_luck.o lj_*.o lib_*.o
 
-INSTALL_DEP= src/luajit
+LUA 		:= luajit
 
-default all $(INSTALL_DEP):
-	@echo "==== Building LuaJIT $(VERSION) ===="
-	$(MAKE) -C src
-	@echo "==== Successfully built LuaJIT $(VERSION) ===="
+ALL_LIB 	:= $(wildcard src/lib_*.c)
+ALL_LJ		:= $(wildcard src/lj_*.c)
 
-install: $(INSTALL_DEP)
-	@echo "==== Installing LuaJIT $(VERSION) to $(PREFIX) ===="
-	$(MKDIR) $(INSTALL_DIRS)
-	cd src && $(INSTALL_X) $(FILE_T) $(INSTALL_T)
-	cd src && test -f $(FILE_A) && $(INSTALL_F) $(FILE_A) $(INSTALL_STATIC) || :
-	$(RM) $(INSTALL_DYN) $(INSTALL_SHORT1) $(INSTALL_SHORT2)
-	cd src && test -f $(FILE_SO) && \
-	  $(INSTALL_X) $(FILE_SO) $(INSTALL_DYN) && \
-	  ( $(LDCONFIG) $(INSTALL_LIB) || : ) && \
-	  $(SYMLINK) $(INSTALL_SONAME) $(INSTALL_SHORT1) && \
-	  $(SYMLINK) $(INSTALL_SONAME) $(INSTALL_SHORT2) || :
-	cd etc && $(INSTALL_F) $(FILE_MAN) $(INSTALL_MAN)
-	cd etc && $(SED_PC) $(FILE_PC) > $(FILE_PC).tmp && \
-	  $(INSTALL_F) $(FILE_PC).tmp $(INSTALL_PC) && \
-	  $(RM) $(FILE_PC).tmp
-	cd src && $(INSTALL_F) $(FILES_INC) $(INSTALL_INC)
-	cd src/jit && $(INSTALL_F) $(FILES_JITLIB) $(INSTALL_JITLIB)
-	@echo "==== Successfully installed LuaJIT $(VERSION) to $(PREFIX) ===="
-	@echo ""
-	@echo "Note: the development releases deliberately do NOT install a symlink for luajit"
-	@echo "You can do this now by running this command (with sudo):"
-	@echo ""
-	@echo "  $(SYMLINK) $(INSTALL_TNAME) $(INSTALL_TSYM)"
-	@echo ""
+HOST_CC 	:= clang
+HOST_CFLAGS := -DLUAJIT_TARGET=LUAJIT_ARCH_X64 -DLUAJIT_OS=LUAJIT_OS_OTHER -DLUAJIT_DISABLE_JIT -DLUAJIT_DISABLE_FFI -DLUAJIT_NO_UNWIND -Isrc/ -DTARGET_OS_IPHONE=0
+
+CC 			:= clang
+CFLAGS 		:= -target x86_64-elf -nostdinc -Wno-duplicate-decl-specifier -Wno-unused-command-line-argument -Wno-unknown-attributes -Iinc -Iinc/lj-libc -DLUAJIT_DISABLE_FFI -DLUAJIT_USE_SYSMALLOC -DLUAJIT_TARGET=LUAJIT_ARCH_X64 -DLUAJIT_OS=LUAJIT_OS_OTHER -DLUAJIT_DISABLE_JIT -DLUAJIT_DISABLE_FFI -DLUAJIT_NO_UNWIND -Isrc -DTARGET_OS_IPHONE=0 -DLUAJIT_SECURITY_PRNG=0 -g -mcmodel=kernel -fno-omit-frame-pointer
+
+ALL_BUILDVM := $(wildcard src/host/buildvm*.c)
 
 
-uninstall:
-	@echo "==== Uninstalling LuaJIT $(VERSION) from $(PREFIX) ===="
-	$(UNINSTALL) $(INSTALL_T) $(INSTALL_STATIC) $(INSTALL_DYN) $(INSTALL_SHORT1) $(INSTALL_SHORT2) $(INSTALL_MAN)/$(FILE_MAN) $(INSTALL_PC)
-	for file in $(FILES_JITLIB); do \
-	  $(UNINSTALL) $(INSTALL_JITLIB)/$$file; \
-	  done
-	for file in $(FILES_INC); do \
-	  $(UNINSTALL) $(INSTALL_INC)/$$file; \
-	  done
-	$(LDCONFIG) $(INSTALL_LIB)
-	$(RMDIR) $(UNINSTALL_DIRS) || :
-	@echo "==== Successfully uninstalled LuaJIT $(VERSION) from $(PREFIX) ===="
+all: libluajit_luck.o
 
-##############################################################################
+src/host/buildvm_arch.h: src/vm_x64.dasc
+	$(LUA) dynasm/dynasm.lua -LN -D P64 -D NO_UNWIND -o $@ $<
 
-amalg:
-	@echo "Building LuaJIT $(VERSION)"
-	$(MAKE) -C src amalg
+buildvm.exe: $(patsubst src/host/%.c,src/host/%.o,$(ALL_BUILDVM))
+	$(HOST_CC) $^ -o $@
 
-clean:
-	$(MAKE) -C src clean
+src/host/%.o: src/host/%.c
+	$(HOST_CC) $(HOST_CFLAGS) -c -o $@ $<
 
-.PHONY: all install amalg clean
+src/lj_vm.s: buildvm.exe
+	./$< -m elfasm -o $@
 
-##############################################################################
+src/lj_bcdef.h: buildvm.exe
+	./$< -m bcdef -o $@ $(ALL_LIB)
+
+src/lj_ffdef.h: buildvm.exe
+	./$< -m ffdef -o $@ $(ALL_LIB)
+
+src/lj_libdef.h: buildvm.exe
+	./$< -m libdef -o $@ $(ALL_LIB)
+
+src/lj_recdef.h: buildvm
+	./$< -m recdef -o $@ $(ALL_LIB)
+
+src/jit/vmdef.lua: buildvm.exe
+	./$< -m vmdef -o $@ $(ALL_LIB)
+
+src/lj_folddef.h: buildvm.exe src/lj_opt_fold.c
+	./$< -m folddef -o $@ $<
+
+src/lj_vm.o: src/lj_vm.s
+	$(CC) -c $(CFLAGS) -o $@ $<
+
+libluajit_luck.o: src/lj_vm.o $(ALL_LJ:.c=.o) $(ALL_LIB:.c=.o)
+	ld.lld -r -o $@ $^
+
+%.o: %.c
+	$(CC) -c $(CFLAGS) -o $@ $<
