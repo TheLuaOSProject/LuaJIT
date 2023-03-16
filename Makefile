@@ -58,7 +58,14 @@ HOST_CC 	:= clang
 HOST_CFLAGS := -DLUAJIT_TARGET=LUAJIT_ARCH_X64 -DLUAJIT_OS=LUAJIT_OS_OTHER -DLUAJIT_DISABLE_JIT -DLUAJIT_DISABLE_FFI -DLUAJIT_NO_UNWIND -Isrc/ -DTARGET_OS_IPHONE=0
 
 CC 			:= clang
-CFLAGS 		:= -target x86_64-elf -nostdinc -Wno-duplicate-decl-specifier -Wno-unused-command-line-argument -Wno-unknown-attributes -Iinc -Iinc/lj-libc -DLUAJIT_DISABLE_FFI -DLUAJIT_USE_SYSMALLOC -DLUAJIT_TARGET=LUAJIT_ARCH_X64 -DLUAJIT_OS=LUAJIT_OS_OTHER -DLUAJIT_DISABLE_JIT -DLUAJIT_DISABLE_FFI -DLUAJIT_NO_UNWIND -Isrc -DTARGET_OS_IPHONE=0 -DLUAJIT_SECURITY_PRNG=0 -g -mcmodel=kernel -fno-omit-frame-pointer
+CFLAGS 		:= 	-target x86_64-elf\
+				-nostdinc\
+				-Wno-duplicate-decl-specifier -Wno-unused-command-line-argument -Wno-unknown-attributes \
+				-I../../inc -I../../inc/lj-libc -Isrc \
+				-DLUAJIT_DISABLE_FFI -DLUAJIT_USE_SYSMALLOC -DLUAJIT_TARGET=LUAJIT_ARCH_X64 -DLUAJIT_OS=LUAJIT_OS_OTHER -DLUAJIT_DISABLE_JIT -DLUAJIT_DISABLE_FFI -DLUAJIT_NO_UNWIND -DTARGET_OS_IPHONE=0 -DLUAJIT_SECURITY_PRNG=0\
+				-g\
+				-mcmodel=kernel\
+				-fno-omit-frame-pointer\
 
 ALL_BUILDVM := $(wildcard src/host/buildvm*.c)
 
