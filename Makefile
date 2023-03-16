@@ -60,6 +60,7 @@ HOST_CFLAGS := -DLUAJIT_TARGET=LUAJIT_ARCH_X64 -DLUAJIT_OS=LUAJIT_OS_OTHER -DLUA
 CC 			:= clang
 CFLAGS 		:= 	-target x86_64-elf\
 				-nostdinc\
+				-std=gnu2x\
 				-Wno-duplicate-decl-specifier -Wno-unused-command-line-argument -Wno-unknown-attributes \
 				-I../../inc -I../../inc/lj-libc -Isrc \
 				-DLUAJIT_DISABLE_FFI -DLUAJIT_USE_SYSMALLOC -DLUAJIT_TARGET=LUAJIT_ARCH_X64 -DLUAJIT_OS=LUAJIT_OS_OTHER -DLUAJIT_DISABLE_JIT -DLUAJIT_DISABLE_FFI -DLUAJIT_NO_UNWIND -DTARGET_OS_IPHONE=0 -DLUAJIT_SECURITY_PRNG=0\
