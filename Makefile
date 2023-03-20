@@ -55,7 +55,7 @@ ALL_LIB 	:= src/lib_base.c src/lib_math.c src/lib_bit.c src/lib_string.c src/lib
 ALL_LJ		:= $(wildcard src/lj_*.c)
 BUILD_LIB   := src/lib_aux.c src/lib_base.c src/lib_bit.c src/lib_buffer.c src/lib_debug.c src/lib_math.c src/lib_string.c src/lib_table.c
 
-HOST_CC 	:= clang
+HOST_CC 	:= cc
 HOST_CFLAGS := -DLUAJIT_TARGET=LUAJIT_ARCH_X64 -DLUAJIT_OS=LUAJIT_OS_OTHER -DLUAJIT_DISABLE_JIT -DLUAJIT_DISABLE_FFI -DLUAJIT_NO_UNWIND -Isrc/ -DTARGET_OS_IPHONE=0
 
 CC 			:= clang
@@ -77,14 +77,13 @@ all: libluajit_luck.o
 src/host/buildvm_arch.h: src/vm_x64.dasc
 	$(LUA) dynasm/dynasm.lua -LN -D P64 -D NO_UNWIND -o $@ $<
 
-buildvm.exe: $(patsubst src/host/%.c,src/host/%.o,$(ALL_BUILDVM))
-	$(HOST_CC) $^ -o $@
 
-src/host/%.o: src/host/%.c
-	$(HOST_CC) $(HOST_CFLAGS) -c -o $@ $<
+
+buildvm.exe: src/host/buildvm_arch.h $(ALL_BUILDVM)
+	$(HOST_CC) $(ALL_BUILDVM) $(HOST_CFLAGS) -Isrc/host/ -o $@
 
 src/lj_vm.s: buildvm.exe
-	./$< -m elfasm -o $@
+	./buildvm.exe -m elfasm -o $@
 
 src/lj_bcdef.h: buildvm.exe
 	./$< -m bcdef -o $@ $(ALL_LIB)
