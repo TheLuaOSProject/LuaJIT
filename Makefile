@@ -68,6 +68,7 @@ CFLAGS 		:= 	-target x86_64-elf\
 				-g\
 				-mcmodel=kernel\
 				-fno-omit-frame-pointer\
+				-Wno-implicit-function-declaration
 
 ALL_BUILDVM := $(wildcard src/host/buildvm*.c)
 
