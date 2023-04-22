@@ -63,7 +63,7 @@ CFLAGS 		:= 	-target x86_64-elf\
 				-nostdinc\
 				-std=gnu17\
 				-Wno-duplicate-decl-specifier -Wno-unused-command-line-argument -Wno-unknown-attributes \
-				-I../../inc -I../../inc/lj-libc -Isrc \
+				-I../../inc/lj-libc -I../../inc -Isrc \
 				-DLUAJIT_DISABLE_FFI -DLUAJIT_USE_SYSMALLOC -DLUAJIT_TARGET=LUAJIT_ARCH_X64 -DLUAJIT_OS=LUAJIT_OS_OTHER -DLUAJIT_DISABLE_JIT -DLUAJIT_DISABLE_FFI -DLUAJIT_NO_UNWIND -DTARGET_OS_IPHONE=0 -DLUAJIT_SECURITY_PRNG=0\
 				-g\
 				-mcmodel=kernel\
