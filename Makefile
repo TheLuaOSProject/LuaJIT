@@ -111,5 +111,5 @@ libluajit_luck.o: src/lj_vm.o $(ALL_LJ:.c=.o) $(BUILD_LIB:.c=.o)
 	ld.lld -r -o $@ $^
 
 %.o: %.c
-	@/usr/bin/printf "\033[0;32m\033[1;35m[LuaJIT]\033[0m Compiling $<\033[0m"
+	@/usr/bin/printf "\033[0;32m\033[1;35m[LuaJIT]\033[31mCompiling $<\n\033[0m"
 	$(CC) -c $(CFLAGS) -o $@ $<
