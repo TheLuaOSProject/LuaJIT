@@ -78,8 +78,6 @@ all: libluajit_luck.o
 src/host/buildvm_arch.h: src/vm_x64.dasc
 	$(LUA) dynasm/dynasm.lua -LN -D P64 -D NO_UNWIND -o $@ $<
 
-
-
 buildvm.exe: src/host/buildvm_arch.h $(ALL_BUILDVM)
 	$(HOST_CC) $(ALL_BUILDVM) $(HOST_CFLAGS) -Isrc/host/ -o $@
 
@@ -105,11 +103,13 @@ src/lj_folddef.h: buildvm.exe src/lj_opt_fold.c
 	./$< -m folddef -o $@ $<
 
 src/lj_vm.o: src/lj_vm.s src/lj_bcdef.h src/lj_ffdef.h src/lj_libdef.h src/lj_recdef.h src/jit/vmdef.lua src/lj_folddef.h
+	@/usr/bin/printf "[\033[1;35mLuaJIT\033[0m]\033[32m Assembling \033[33m$<\n\033[0m"
 	$(CC) -c $(CFLAGS) -o $@ $<
 
 libluajit_luck.o: src/lj_vm.o $(ALL_LJ:.c=.o) $(BUILD_LIB:.c=.o)
+	@/usr/bin/printf "[\033[1;35mLuaJIT\033[0m]\033[32m Linking \033[33m$@\n\033[0m"
 	ld.lld -r -o $@ $^
 
 %.o: %.c
-	@/usr/bin/printf "[\033[1;35mLuaJIT\033[0m]\033[32m Compiling $<\n\033[0m"
+	@/usr/bin/printf "[\033[1;35mLuaJIT\033[0m]\033[32m Compiling \033[33m$<\n\033[0m"
 	$(CC) -c $(CFLAGS) -o $@ $<
